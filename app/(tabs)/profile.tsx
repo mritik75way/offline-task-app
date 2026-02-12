@@ -3,7 +3,12 @@ import { View, Image, StyleSheet, ScrollView } from "react-native";
 import { Button, Text, Divider, ActivityIndicator } from "react-native-paper";
 import { router } from "expo-router";
 import { Screen } from "../../shared/ui/Screen";
-import { getProfile, clearProfile, getAllProfiles, setCurrentProfile } from "../../features/profile/profile.storage";
+import {
+  getProfile,
+  clearProfile,
+  getAllProfiles,
+  setCurrentProfile,
+} from "../../features/profile/profile.storage";
 import { Profile } from "../../features/profile/types";
 
 export default function ProfileScreen() {
@@ -37,7 +42,9 @@ export default function ProfileScreen() {
   if (loading) {
     return (
       <Screen>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
           <ActivityIndicator size="large" />
         </View>
       </Screen>
@@ -47,7 +54,9 @@ export default function ProfileScreen() {
   if (!profile) {
     return (
       <Screen>
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
           <Text variant="headlineSmall">No profile found</Text>
         </View>
       </Screen>
@@ -80,10 +89,7 @@ export default function ProfileScreen() {
             <Text variant="bodyMedium" style={{ opacity: 0.7, marginTop: 4 }}>
               {profile.email}
             </Text>
-            <Text
-              variant="labelSmall"
-              style={{ opacity: 0.6, marginTop: 8 }}
-            >
+            <Text variant="labelSmall" style={{ opacity: 0.6, marginTop: 8 }}>
               Joined {new Date(profile.createdAt).toLocaleDateString()}
             </Text>
           </View>

@@ -3,8 +3,6 @@ import { Card, Text, Chip, useTheme } from "react-native-paper";
 import { Note } from "../types";
 
 export function NoteCard({ note }: { note: Note }) {
-  const theme = useTheme();
-
   return (
     <Card style={styles.card} mode="elevated">
       {note.imageUri && (
@@ -54,7 +52,6 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: 16,
     marginHorizontal: 16,
-    overflow: "hidden",
   },
   image: {
     height: 150,

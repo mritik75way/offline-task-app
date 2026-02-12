@@ -3,7 +3,10 @@ import { View, FlatList, StyleSheet, Image } from "react-native";
 import { Button, Card, Text, Divider } from "react-native-paper";
 import { router } from "expo-router";
 import { Screen } from "../shared/ui/Screen";
-import { getAllProfiles, setCurrentProfile } from "../features/profile/profile.storage";
+import {
+  getAllProfiles,
+  setCurrentProfile,
+} from "../features/profile/profile.storage";
 import { Profile } from "../features/profile/types";
 
 export default function LoginScreen() {

@@ -16,40 +16,40 @@ export default function CreateNote() {
   const [imageUri, setImageUri] = useState<string | undefined>();
   const [location, setLocation] = useState<NoteLocation | undefined>();
   const [locLoading, setLocLoading] = useState(false);
-  const [address, setAddress] = useState("")
+  const [address, setAddress] = useState("");
 
   const addLocation = async () => {
-  setLocLoading(true);
-  try {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") return;
+    setLocLoading(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") return;
 
-    const pos = await Location.getCurrentPositionAsync({});
-    const coords = {
-      lat: pos.coords.latitude,
-      lng: pos.coords.longitude,
-    };
+      const pos = await Location.getCurrentPositionAsync({});
+      const coords = {
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude,
+      };
 
-    const [place] = await Location.reverseGeocodeAsync({
-      latitude: coords.lat,
-      longitude: coords.lng,
-    });
+      const [place] = await Location.reverseGeocodeAsync({
+        latitude: coords.lat,
+        longitude: coords.lng,
+      });
 
-    if (place) {
-      const city = place.city || place.district;
-      const region = place.region;
-      const displayAddress = city && region ? `${city}, ${region}` : place.name;
-      
-      setLocation(coords);
-      setAddress(displayAddress as string);
+      if (place) {
+        const city = place.city || place.district;
+        const region = place.region;
+        const displayAddress =
+          city && region ? `${city}, ${region}` : place.name;
+
+        setLocation(coords);
+        setAddress(displayAddress as string);
+      }
+    } catch (e) {
+      setError("Failed to fetch location name");
+    } finally {
+      setLocLoading(false);
     }
-  } catch (e) {
-    setError("Failed to fetch location name");
-  } finally {
-    setLocLoading(false);
-  }
-};
-
+  };
 
   const removeLocation = () => {
     setLocation(undefined);
@@ -58,7 +58,10 @@ export default function CreateNote() {
   const pickImage = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
-      Alert.alert("Permission Required", "We need access to your photos to attach images.");
+      Alert.alert(
+        "Permission Required",
+        "We need access to your photos to attach images.",
+      );
       return;
     }
 
@@ -78,8 +81,8 @@ export default function CreateNote() {
 
   const onSave = async () => {
     if (!text.trim() && !imageUri) {
-        setError("Please add some text or an image.");
-        return;
+      setError("Please add some text or an image.");
+      return;
     }
 
     setError("");
@@ -90,7 +93,7 @@ export default function CreateNote() {
         text,
         imageUri,
         location,
-        address
+        address,
       });
 
       router.back();
@@ -107,7 +110,9 @@ export default function CreateNote() {
       style={{ flex: 1 }}
     >
       <Screen>
-        <Text variant="headlineMedium" style={styles.title}>New Note</Text>
+        <Text variant="headlineMedium" style={styles.title}>
+          New Note
+        </Text>
 
         <TextInput
           mode="outlined"
@@ -121,51 +126,63 @@ export default function CreateNote() {
         />
 
         <View style={styles.actionRow}>
-            {!imageUri && (
-                <Button icon="camera" mode="text" onPress={pickImage}>
-                    Add Image
-                </Button>
-            )}
-            {!location && (
-                <Button 
-                    icon="map-marker" 
-                    mode="text" 
-                    onPress={addLocation} 
-                    loading={locLoading}
-                >
-                    Add Location
-                </Button>
-            )}
+          {!imageUri && (
+            <Button icon="camera" mode="text" onPress={pickImage}>
+              Add Image
+            </Button>
+          )}
+          {!location && (
+            <Button
+              icon="map-marker"
+              mode="text"
+              onPress={addLocation}
+              loading={locLoading}
+            >
+              Add Location
+            </Button>
+          )}
         </View>
 
         {imageUri && (
           <View style={styles.mediaContainer}>
             <Image source={{ uri: imageUri }} style={styles.image} />
             <View style={styles.imageControls}>
-                <Button icon="camera-retake" onPress={pickImage} compact>Change</Button>
-                <Button icon="delete" onPress={removeImage} textColor="red" compact>Remove</Button>
+              <Button icon="camera-retake" onPress={pickImage} compact>
+                Change
+              </Button>
+              <Button
+                icon="delete"
+                onPress={removeImage}
+                textColor="red"
+                compact
+              >
+                Remove
+              </Button>
             </View>
           </View>
         )}
 
-        {/* Location Chip */}
         {location && (
-            <View style={styles.chipContainer}>
-                <Chip 
-                    icon="map-marker" 
-                    onClose={removeLocation} 
-                    style={styles.chip}
-                >
-                    Location Attached
-                </Chip>
-            </View>
+          <View style={styles.chipContainer}>
+            <Chip
+              icon="map-marker"
+              onClose={removeLocation}
+              style={styles.chip}
+            >
+              Location Attached
+            </Chip>
+          </View>
         )}
 
         {locLoading && !location && (
-            <Text style={styles.loadingText}>Fetching location...</Text>
+          <Text style={styles.loadingText}>Fetching location...</Text>
         )}
 
-        {error ? <HelperText type="error" visible={!!error}>{error}</HelperText> : null}
+        {error ? (
+          <HelperText type="error" visible={!!error}>
+            {error}
+          </HelperText>
+        ) : null}
 
         <Button
           mode="contained"
@@ -182,25 +199,28 @@ export default function CreateNote() {
 }
 
 const styles = StyleSheet.create({
-    title: { marginBottom: 16 },
-    input: { marginBottom: 8, minHeight: 120, backgroundColor: 'transparent' },
-    actionRow: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-        flexWrap: 'wrap', 
-        marginBottom: 8
-    },
-    mediaContainer: {
-        marginBottom: 16,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 12,
-        padding: 8,
-        overflow: 'hidden'
-    },
-    image: { width: "100%", height: 200, borderRadius: 8 },
-    imageControls: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 },
-    chipContainer: { flexDirection: 'row', marginBottom: 16 },
-    chip: { backgroundColor: '#e0e0e0' },
-    loadingText: { fontSize: 12, color: 'gray', marginTop: 8 },
-    saveButton: { marginTop: 'auto', marginBottom: 16 }
+  title: { marginBottom: 16 },
+  input: { marginBottom: 8, minHeight: 120, backgroundColor: "transparent" },
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    flexWrap: "wrap",
+    marginBottom: 8,
+  },
+  mediaContainer: {
+    marginBottom: 16,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 12,
+    padding: 8,
+  },
+  image: { width: "100%", height: 200, borderRadius: 8 },
+  imageControls: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 8,
+  },
+  chipContainer: { flexDirection: "row", marginBottom: 16 },
+  chip: { backgroundColor: "#e0e0e0" },
+  loadingText: { fontSize: 12, color: "gray", marginTop: 8 },
+  saveButton: { marginTop: "auto", marginBottom: 16 },
 });

@@ -1,8 +1,7 @@
 import * as ImagePicker from "expo-image-picker";
 
 export async function pickImage() {
-  const { status } =
-    await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
   if (status !== "granted") return;
 

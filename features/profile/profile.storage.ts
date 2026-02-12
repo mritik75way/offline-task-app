@@ -1,35 +1,24 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Profile } from "./types";
+import { getDb } from "../../shared/db/client";
 
-const PROFILES_KEY = "@profiles:v1";
 const CURRENT_PROFILE_KEY = "@current_profile:v1";
 
 export async function saveProfile(profile: Profile) {
-  // Save to profiles list
-  const profiles = await getAllProfiles();
-  const existing = profiles.findIndex((p) => p.id === profile.id);
+  const db = getDb();
+  await db.runAsync(
+    "INSERT OR REPLACE INTO profiles (id, name, email, imageUri, createdAt) VALUES (?, ?, ?, ?, ?)",
+    [profile.id, profile.name, profile.email, profile.imageUri ?? null, profile.createdAt]
+  );
 
-  if (existing >= 0) {
-    profiles[existing] = profile;
-  } else {
-    profiles.push(profile);
-  }
-
-  await AsyncStorage.setItem(PROFILES_KEY, JSON.stringify(profiles));
-  // Set as current profile
   await setCurrentProfile(profile);
 }
 
 export async function getProfile(): Promise<Profile | null> {
   try {
-    const raw = await AsyncStorage.getItem(CURRENT_PROFILE_KEY);
-    if (!raw) return null;
-
-    const parsed = JSON.parse(raw);
-
-    if (!parsed?.name || !parsed?.email) return null;
-
-    return parsed as Profile;
+    const json = await AsyncStorage.getItem(CURRENT_PROFILE_KEY);
+    if (!json) return null;
+    return JSON.parse(json) as Profile;
   } catch {
     return null;
   }
@@ -37,9 +26,11 @@ export async function getProfile(): Promise<Profile | null> {
 
 export async function getAllProfiles(): Promise<Profile[]> {
   try {
-    const raw = await AsyncStorage.getItem(PROFILES_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
+    const db = getDb();
+    const result = await db.getAllAsync<Profile>("SELECT * FROM profiles ORDER BY createdAt DESC");
+    return result;
+  } catch (e) {
+    console.error(e);
     return [];
   }
 }
@@ -53,9 +44,8 @@ export async function clearProfile() {
 }
 
 export async function deleteProfile(profileId: string) {
-  const profiles = await getAllProfiles();
-  const filtered = profiles.filter((p) => p.id !== profileId);
-  await AsyncStorage.setItem(PROFILES_KEY, JSON.stringify(filtered));
+  const db = getDb();
+  await db.runAsync("DELETE FROM profiles WHERE id = ?", [profileId]);
 
   const currentProfile = await getProfile();
   if (currentProfile?.id === profileId) {

@@ -12,5 +12,4 @@ export const createNoteSchema = z.object({
     .optional(),
 });
 
-
 export type CreateNoteInput = z.infer<typeof createNoteSchema>;
